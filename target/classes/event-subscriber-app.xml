@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="ab370a30-eee6-4c30-8f67-549b21b32dfe" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="d238bad1-0b6c-4c92-a1ff-adb95ccc9c81" environment="${mule.env}" />
+	<configuration-properties doc:name="Configuration properties" doc:id="dc5dd48a-2594-4020-94b1-05f7b6f5606d" file="staging.properties" />
+	<flow name="event-subscriber-appFlow" doc:id="38b4f44f-c242-4284-aa9d-10d991adf777" >
+		<jms:listener doc:name="On New Message" doc:id="a15456b7-fed2-4232-a255-1a01b487345d" config-ref="JMS_Config" destination="SALESFORCE-QUEUE">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+		</jms:listener>
+		<json-logger:logger doc:name="start" doc:id="dfe04062-27a8-425c-bb01-73c3b34021a9" message="start" config-ref="JSON_Logger_Config"/>
+		<flow-ref doc:name="Flow Reference" doc:id="db76b396-38ac-4998-826e-6b2896ad2c7c" name="accountdb_requestFlow"/>
+	</flow>
+</mule>
